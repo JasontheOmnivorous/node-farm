@@ -1,11 +1,16 @@
 const fs = require('fs'); 
 const http = require('http');
 const url = require('url');
+const slugify = require('slugify'); // import third-party slugify module
 const replaceTemplates = require('./modules/replaceTemplates'); // import our created module
 
 // top-level code
 const data = fs.readFileSync(`${__dirname}/dev_data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
+
+// slugify the product names by looping through the JSON dataObj
+const slugs = dataObj.map(element => slugify(element.productName, {lower: true})); 
+console.log(slugs);
 
 const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
 const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8');
@@ -34,7 +39,7 @@ const server = http.createServer((req, res) => {
         const output = replaceTemplates(tempProduct, product); 
         res.end(output);
 
-    // API
+    // API endpoint
     } else if (pathname === '/api') {
         res.writeHead(200, {'Content-type': 'application/json'});
         res.end(data); // send back the top-level code without reading again and again to enhance performance
